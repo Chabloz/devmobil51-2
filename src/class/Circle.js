@@ -18,6 +18,14 @@ export default class Circle {
     this.dir = dir;
   }
 
+  setDirection(angle) {
+    this.dir = angle;
+  }
+
+  compareTo(other) {
+    return this.radius - other.radius;
+  }
+
   move(dt) {
     const dx = Math.cos(this.dir) * this.speed * dt / 1000;
     const dy = Math.sin(this.dir) * this.speed * dt / 1000;
