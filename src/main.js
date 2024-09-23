@@ -7,8 +7,6 @@ const ctx = document.querySelector('canvas').getContext('2d');
 ctx.canvas.width = ctx.canvas.clientWidth;
 ctx.canvas.height = ctx.canvas.clientHeight;
 
-console.log(ctx.canvas.width, ctx.canvas.height);
-
 const circles = [];
 for (let i = 0; i < 10; i++) {
   circles.push(new Circle({
@@ -26,10 +24,12 @@ function tick(timestamp) {
   lastTick = timestamp;
   ctx.canvas.width = ctx.canvas.clientWidth;
   ctx.canvas.height = ctx.canvas.clientHeight;
+
   for (const circle of circles) {
     circle.move(dt);
     circle.draw(ctx);
   }
+
   requestAnimationFrame(tick);
 }
 let lastTick = 0;

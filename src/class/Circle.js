@@ -19,10 +19,10 @@ export default class Circle {
   }
 
   move(dt) {
-      const dx = Math.cos(this.dir) * this.speed * dt / 1000;
-      const dy = Math.sin(this.dir) * this.speed * dt / 1000;
-      this.x += dx;
-      this.y += dy;
+    const dx = Math.cos(this.dir) * this.speed * dt / 1000;
+    const dy = Math.sin(this.dir) * this.speed * dt / 1000;
+    this.x += dx;
+    this.y += dy;
   }
 
   draw(ctx) {
