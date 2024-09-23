@@ -8,13 +8,13 @@ ctx.canvas.width = ctx.canvas.clientWidth;
 ctx.canvas.height = ctx.canvas.clientHeight;
 
 const circles = [];
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 100; i++) {
   circles.push(new Circle({
     x: Math.random() * ctx.canvas.width,
     y: Math.random() * ctx.canvas.height,
     speed: Math.random() * 100,
     dir: Math.random() * TAU,
-    color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+    color: `hsl(${Math.random() * 360}, 75%, 50%)`,
   }));
 }
 
@@ -22,15 +22,18 @@ for (let i = 0; i < 10; i++) {
 function tick(timestamp) {
   const dt = timestamp - lastTick;
   lastTick = timestamp;
+
+  // Update the world
+  for (const circle of circles) circle.move(dt);
+
+  // Render the WORLD
   ctx.canvas.width = ctx.canvas.clientWidth;
   ctx.canvas.height = ctx.canvas.clientHeight;
+  for (const circle of circles) circle.draw(ctx);
 
-  for (const circle of circles) {
-    circle.move(dt);
-    circle.draw(ctx);
-  }
-
+  // Main animation loop
   requestAnimationFrame(tick);
 }
+
 let lastTick = 0;
 requestAnimationFrame(tick);
