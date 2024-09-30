@@ -1,4 +1,6 @@
-import Circle from "./class/CircleVerlet";
+import Circle from "./class/Circle";
+import Keyboard from "./class/Keyboard";
+import Touch from "./class/Touch";
 import { TAU, getRandomInt } from "./utils/math";
 import MainLoop from "./utils/mainloop";
 
@@ -8,6 +10,8 @@ const ctx = document.querySelector('canvas').getContext('2d');
 ctx.canvas.width = ctx.canvas.clientWidth;
 ctx.canvas.height = ctx.canvas.clientHeight;
 
+const keyboard = new Keyboard();
+const touch = new Touch();
 
 const circles = [];
 for (let i = 0; i < 100; i++) {
@@ -21,20 +25,29 @@ for (let i = 0; i < 100; i++) {
     color: `hsl(${Math.random() * 360}, 75%, 50%)`,
   }));
 }
-// circles.push(new Circle({
-//   x: ctx.canvas.width / 2,
-//   y: ctx.canvas.height / 2,
-//   radius: 50,
-//   color: "tomato"
-// }));
 
 circles.sort((c1, c2) => c1.compareTo(c2));
 
 MainLoop.setUpdate((dt) => {
-  for (const circle of circles) {
-    circle.applyForceY(0.003);
-    circle.move(dt);
-    circle.constraintBox(ctx.canvas.width, ctx.canvas.height);
+  // Manage user input
+  let angle = false;
+  if (keyboard.isKeyDown("KeyW")) {
+    angle = TAU * 0.75;
+  } else if (keyboard.isKeyDown("KeyS")) {
+    angle = TAU * 0.25;
+  }
+
+  if (angle === false) {
+    angle = touch.getAngle();
+    if (angle !== false) angle += TAU * 0.5;
+  }
+
+  // Update the world
+  if (angle !== false) {
+    for (const circle of circles) {
+      circle.setDirection(angle);
+      circle.move(dt);
+    }
   }
 });
 
