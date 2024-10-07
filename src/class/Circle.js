@@ -22,6 +22,16 @@ export default class Circle {
     this.dir = angle;
   }
 
+  distanceTo(other) {
+    const dx = this.x - other.x;
+    const dy = this.y - other.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  isInCollisionCircle(otherCircle) {
+    return this.distanceTo(otherCircle) < this.radius + otherCircle.radius;
+  }
+
   compareTo(other) {
     return this.radius - other.radius;
   }

@@ -1,84 +1,64 @@
 import Circle from "./class/CircleVerlet";
 import { TAU, getRandomInt } from "./utils/math";
 import MainLoop from "./utils/mainloop";
+import Link from "./class/LinkVerlet";
 
 const ctx = document.querySelector('canvas').getContext('2d');
-
-// set canvas size to match the parent container
 ctx.canvas.width = ctx.canvas.clientWidth;
 ctx.canvas.height = ctx.canvas.clientHeight;
 
-
 const circles = [];
-for (let i = 0; i < 100; i++) {
-  const radius = getRandomInt(3, 80);
+for (let i = 0; i < 5; i++) {
+  const radius = getRandomInt(5, 30);
   circles.push(new Circle({
     x: Math.random() * ctx.canvas.width,
     y: Math.random() * ctx.canvas.height,
-    speed: radius / 10 * 20,
-    dir: 0,
     radius,
     color: `hsl(${Math.random() * 360}, 75%, 50%)`,
   }));
 }
-// circles.push(new Circle({
-//   x: ctx.canvas.width / 2,
-//   y: ctx.canvas.height / 2,
-//   radius: 50,
-//   color: "tomato"
-// }));
+//make first circle sticky
+circles[0].x = ctx.canvas.width / 2;
+circles[0].y = ctx.canvas.height / 2;
+circles[0].sticky = true;
 
-circles.sort((c1, c2) => c1.compareTo(c2));
+const links = [];
+for (let i = 0; i < circles.length - 1; i++) {
+  links.push(new Link({
+    obj1: circles[i],
+    obj2: circles[i+1],
+    distance: 100,
+    color: 'tomato',
+  }));
+}
 
+MainLoop.setSimulationTimestep(1000 / 120);
 MainLoop.setUpdate((dt) => {
   for (const circle of circles) {
     circle.applyForceY(0.003);
     circle.move(dt);
     circle.constraintBox(ctx.canvas.width, ctx.canvas.height);
   }
-});
 
+  // solve collision detection
+  for (let i = 0; i < circles.length; i++) {
+    const circle = circles[i];
+    for (let j = i + 1; j < circles.length; j++) {
+      const otherCircle = circles[j];
+      circle.collisionCircle(otherCircle);
+    }
+  }
+  for (const link of links) link.update(dt);
+});
 MainLoop.setDraw((dt) => {
   ctx.canvas.width = ctx.canvas.clientWidth;
   ctx.canvas.height = ctx.canvas.clientHeight;
   for (const circle of circles) circle.draw(ctx);
+  for (const link of links) link.draw(ctx);
 });
-
+MainLoop.setEnd((fps, panic) => {
+  if (!panic) return;
+  console.error('panic!');
+  MainLoop.resetFrameDelta();
+});
 MainLoop.start();
-
-// function tick(timestamp) {
-//   // Main animation loop
-//   requestAnimationFrame(tick);
-
-//   const dt = timestamp - lastTick;
-//   lastTick = timestamp;
-
-
-//   if (dt < 1000 / 30) {
-//     // do nothing
-//     return;
-//   }
-
-//   // Manage user input
-//   let angle = false;
-//   if (keyboard.isKeyDown("KeyW")) {
-//     angle = TAU * 0.75;
-//   } else if (keyboard.isKeyDown("KeyS")) {
-//     angle = TAU * 0.25;
-//   }
-//   // Update the world
-//   if (angle !== false) {
-//     for (const circle of circles) {
-//       circle.setDirection(angle);
-//       circle.move(dt);
-//     }
-//   }
-
-//   // Render the WORLD
-//   ctx.canvas.width = ctx.canvas.clientWidth;
-//   ctx.canvas.height = ctx.canvas.clientHeight;
-//   for (const circle of circles) circle.draw(ctx);
-// }
-
-// let lastTick = 0;
-// requestAnimationFrame(tick);
