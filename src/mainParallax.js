@@ -26,6 +26,8 @@ for (let i = 0; i < 100; i++) {
   }));
 }
 
+
+
 circles.sort((c1, c2) => c1.compareTo(c2));
 
 MainLoop.setUpdate((dt) => {
@@ -55,6 +57,7 @@ MainLoop.setDraw((dt) => {
   ctx.canvas.width = ctx.canvas.clientWidth;
   ctx.canvas.height = ctx.canvas.clientHeight;
   for (const circle of circles) circle.draw(ctx);
+  circle.draw(ctx);
 });
 
 MainLoop.start();

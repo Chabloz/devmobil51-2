@@ -2,10 +2,22 @@ import Circle from "./class/CircleVerlet";
 import { TAU, getRandomInt } from "./utils/math";
 import MainLoop from "./utils/mainloop";
 import Link from "./class/LinkVerlet";
+import Tweens from "./class/Tweens";
 
 const ctx = document.querySelector('canvas').getContext('2d');
 ctx.canvas.width = ctx.canvas.clientWidth;
 ctx.canvas.height = ctx.canvas.clientHeight;
+
+const tweens = new Tweens();
+tweens.create({
+  duration: 5000,
+  from: 100,
+  to: ctx.canvas.width/2,
+  easing: 'quad',
+  animate: (progress) => {
+    circle.x = progress;
+  }
+});
 
 const circles = [];
 for (let i = 0; i < 5; i++) {
@@ -17,6 +29,14 @@ for (let i = 0; i < 5; i++) {
     color: `hsl(${Math.random() * 360}, 75%, 50%)`,
   }));
 }
+const circle = new Circle({
+  x: ctx.canvas.width / 2,
+  y: ctx.canvas.height / 2,
+  radius: 50,
+  color: "tomato",
+  sticky: true,
+});
+
 //make first circle sticky
 circles[0].x = ctx.canvas.width / 2;
 circles[0].y = ctx.canvas.height / 2;
@@ -49,12 +69,14 @@ MainLoop.setUpdate((dt) => {
     }
   }
   for (const link of links) link.update(dt);
+  tweens.update(dt);
 });
 MainLoop.setDraw((dt) => {
   ctx.canvas.width = ctx.canvas.clientWidth;
   ctx.canvas.height = ctx.canvas.clientHeight;
   for (const circle of circles) circle.draw(ctx);
   for (const link of links) link.draw(ctx);
+  circle.draw(ctx);
 });
 MainLoop.setEnd((fps, panic) => {
   if (!panic) return;
