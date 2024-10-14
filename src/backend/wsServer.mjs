@@ -1,26 +1,9 @@
-import { WebSocketServer } from 'ws';
-import WebSocket from 'ws';
-import WebSocketServerOrigin from './class/WebSocketServerOrigin.mjs';
+import WSServer from "./class/WSServer.mjs";
 
-const server = new WebSocketServerOrigin({
+const server = new WSServer({
   port: 8080,
   origins: 'http://localhost:5173',
   maxNbOfClients: 30,
 });
 
-server.on('connection', (client) => {
-  console.log(server.clients.size);
-
-  client.on('error', console.error);
-
-  client.on('message', function message(data) {
-    console.log('received: %s', data);
-    // broadcast
-    for (const client of server.clients) {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(data);
-      }
-    };
-  });
-
-});
+server.start();

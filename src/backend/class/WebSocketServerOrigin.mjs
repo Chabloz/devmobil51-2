@@ -1,41 +1,63 @@
-import { WebSocketServer } from 'ws';
-import WebSocket from 'ws';
+import  { WebSocketServer } from 'ws';
 
 export default class WebSocketServerOrigin extends WebSocketServer {
 
   constructor(options, callback) {
     super(options, callback);
 
-    if (this.options?.origin) {
-      throw new Error('The origin option is not supported');
+    if (!this.options?.origins) {
+      throw new Error('Missing origins option');
     }
-    // origins muste be a string or an array of strings
+    if (typeof this.options.origins !== 'string' && !Array.isArray(this.options.origins)) {
+      throw new Error('Invalid origins option');
+    }
     if (typeof this.options.origins === 'string') {
       this.options.origins = [this.options.origins];
-    } else if (!Array.isArray(this.options.origins)) {
-      throw new Error('The origins option must be a string or an array of strings');
     }
 
-    // same for nbClientsMax
-    if (typeof this.options?.maxNbOfClients !== 'number' || this.options?.maxNbOfClients < 1) {
-      throw new Error('The nbClientsMax option must be a number');
+    if (!this.options?.maxNbOfClients) {
+      throw new Error('Missing maxNbOfClients option');
+    }
+    if (!Number.isInteger(this.options.maxNbOfClients) || this.options.maxNbOfClients <= 0) {
+      throw new Error('Invalid maxNbOfClients option');
     }
   }
 
+  log(message) {
+    if (!this.options?.verbose) return;
+    console.log(`[WSS] ${message}`);
+  }
+
   handleUpgrade(request, socket, head, callback) {
+
     if (!this.checkOrigin(request.headers?.origin)) {
       socket.write('HTTP/1.1 403 Forbidden\r\n\r\n');
       socket.destroy();
       return;
     }
+
     if (this.clients.size >= this.options.maxNbOfClients) {
+      this.log('Server is full');
       socket.write('HTTP/1.1 503 Service Unavailable\r\n\r\n');
       socket.destroy();
-      return;
+      return
     }
 
     return super.handleUpgrade(request, socket, head, callback);
   }
 
+  checkOrigin(origin) {
+    for (const allowedOrigin of this.options.origins) {
+      if (allowedOrigin === '*') return true;
+      if (!allowedOrigin.startsWith('http')) { // if allowedOrigin accept any protocol
+        origin = origin.replace(/(https?:\/\/)?/, '');
+      }
+      if (!allowedOrigin.match(/:\d+$/)) { // if allowedOrigin accept any port
+        origin = origin.replace(/:\d+$/, '');
+      }
+      if (origin === allowedOrigin) return true;
+    }
+    return false;
+  }
 
 }
