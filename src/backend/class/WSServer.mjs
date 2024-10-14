@@ -26,7 +26,6 @@ export default class WSServer {
       origins: this.origins,
       maxNbOfClients: this.maxNbOfClients,
       verbose: this.verbose,
-      pingTimeout: this.pingTimeout,
     });
     this.server.on('connection', (client) => this.onConnection(client));
   }
@@ -66,4 +65,5 @@ export default class WSServer {
       }
     }
   }
+
 }
