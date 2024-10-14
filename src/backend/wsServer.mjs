@@ -7,10 +7,3 @@ const server = new WSServer({
 });
 
 server.start();
-
-const server2 = new WSServer({
-  port: 8888,
-  origins: 'http://localhost:5173',
-  maxNbOfClients: 30,
-});
-server2.start();
